@@ -1,4 +1,5 @@
 build/
+input/*
 .vscode
 *.csv
 *.pdf

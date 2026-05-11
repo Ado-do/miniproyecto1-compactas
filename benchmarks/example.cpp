@@ -1,7 +1,6 @@
 #include "bench-lib/benchmark.hpp"
-#include "hello.hpp"
 
 int main() {
-    hello("Lete");
+    std::cout << "HOA LETE!\n";
     return 0;
 }

@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Desactivar tests de libs
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(BENCHLIB_BUILD_TESTING OFF CACHE BOOL "" FORCE) # Specific to bench-lib
+
 include(FetchContent) # Usar FetchContent en vez de git submodules :P
 FetchContent_Declare(
     sdsl_lite
@@ -19,24 +23,19 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(sdsl_lite bench-lib) # Descarga y configura libs
 
 add_library(miniproyecto1 STATIC
-  # TODO: Actualizar
-  # src/fib_recursive.cpp
-  # src/fib_memoized.cpp
-  # src/fib_tabulated.cpp
-  src/hello.cpp
+  src/bwt.cpp
+  src/OccMyWT.cpp
 )
 
-target_include_directories(miniproyecto1 PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
+target_include_directories(miniproyecto1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(miniproyecto1 PUBLIC sdsl-lite)
 
-# option(BUILD_TESTING "Build tests" ON)
-# if(BUILD_TESTING)
-#   enable_testing()
-#   add_subdirectory(tests)
-# endif()
+set(BUILD_TESTING ON CACHE BOOL "" FORCE)
+option(BUILD_TESTING "Build tests" ON)
+if(BUILD_TESTING)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
 
 option(BUILD_BENCHMARKS "Build benchmarks" ON)
 if(BUILD_BENCHMARKS)

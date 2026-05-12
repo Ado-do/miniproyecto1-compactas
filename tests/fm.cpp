@@ -1,4 +1,5 @@
 #include "FMIndex.hpp"
+#include "utils.hpp"
 
 #include <cassert>
 
@@ -7,9 +8,9 @@ using namespace std;
 int main(int argc, char *argv[]) {
     // Recibir archivo via CLI
     assert(argc == 2);
-    const string file_path = argv[1];
+    vector<uint8_t> text = read_file_to_vector(argv[1]);
 
-    FMIndex<OccMyWT> fm(file_path);
+    FMIndex<OccMyWT> fm(text);
     string s = "foo";
     vector<uint8_t> pattern(s.begin(), s.end());
     assert(fm.count(pattern) == 2);

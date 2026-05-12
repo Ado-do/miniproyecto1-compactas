@@ -22,7 +22,7 @@ private:
     sdsl::wt_huff<sdsl::rrr_vector<>> wt;
 
 public:
-    OccHuffmanWT(std::vector<uint8_t> &seq) { 
+    OccHuffmanWT(const std::vector<uint8_t> &seq) { 
         std::string s(seq.begin(), seq.end());
         construct_im(wt, s, 1);
     }

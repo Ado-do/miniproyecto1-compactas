@@ -18,3 +18,10 @@ add_test(
   NAME basic_test_fm
   COMMAND test_fm "${CMAKE_SOURCE_DIR}/input/foo.txt"
 )
+
+add_executable(test_patterns_gen patterns_gen.cpp)
+target_link_libraries(test_patterns_gen PRIVATE miniproyecto1)
+add_test(
+  NAME basic_test_patterns_gen
+  COMMAND test_patterns_gen "${CMAKE_SOURCE_DIR}/input/english.50MB"
+)

@@ -1,31 +1,21 @@
 #pragma once
 
-#include "bwt.hpp"
+#include "utils.hpp"
 #include "OccMyWT.hpp" // NOLINT
 #include "OccBruteForce.hpp"
 #include "OccSDSL.hpp"
 
 #include <cstdint>
-#include <fstream>
-#include <string>
 #include <vector>
 
 template <typename OccStruct>
 class FMIndex {
 private:
     static const size_t SIGMA = 1 << 8; // 256
-    OccStruct occ_struct;
     std::vector<size_t> C;
     std::vector<uint8_t> bwt;
+    OccStruct occ_struct;
 
-    void read_file(const std::string &path) {
-        std::ifstream file(path, std::ios::binary | std::ios::ate);
-        size_t n = file.tellg();
-        file.seekg(0, std::ios::beg);
-        std::vector<uint8_t> buf(n);
-        file.read((char *)buf.data(), n);
-        get_bwt(buf, bwt);
-    }
     void calculate_C() {
         std::vector<size_t> freq(SIGMA + 1, 0);
         for (uint8_t c : bwt)
@@ -36,13 +26,10 @@ private:
     }
 
 public:
-    FMIndex(const std::string &text_path) : C(SIGMA + 1, 0) {
-        read_file(text_path);
+    FMIndex(const std::vector<uint8_t> &text) : C(SIGMA + 1, 0), bwt(get_bwt(text)), occ_struct(bwt) {
         calculate_C();
-
-        occ_struct = OccStruct(bwt);
     }
-    size_t count(std::vector<uint8_t> pattern) {
+    size_t count(std::vector<uint8_t> &pattern) {
         if (pattern.empty()) return 0;
 
         size_t m = pattern.size();

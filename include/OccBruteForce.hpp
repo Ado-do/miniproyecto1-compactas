@@ -8,7 +8,7 @@ private:
     const std::vector<uint8_t>* seq = nullptr;
 
 public:
-    OccBruteForce();
+    OccBruteForce() = default;
     OccBruteForce(const std::vector<uint8_t> &seq) : seq(&seq) {}
 
     uint64_t occ(uint8_t v, uint64_t k) {

@@ -24,6 +24,7 @@ for name in "${!texts[@]}"; do
     echo "Texto $file descargado!"
 done
 
+echo "* Compilando..."
 chmod +x compile.sh execute_benchmarks.sh execute_tests.sh plot.sh
 cmake -S . -B build
 ./compile.sh

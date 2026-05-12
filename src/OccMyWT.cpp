@@ -156,7 +156,7 @@ uint32_t WaveletTree::rank(uint32_t symbol, uint32_t index) {
 
 // Definiciones OccMyWT
 
-OccMyWT::OccMyWT(vector<uint8_t> &seq) {
+OccMyWT::OccMyWT(const vector<uint8_t> &seq) {
     vector<uint32_t> casted_bwt(seq.begin(), seq.end());
     wt = WaveletTree(casted_bwt);
 }

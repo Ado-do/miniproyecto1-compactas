@@ -29,7 +29,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(sdsl_lite bench-lib) # Descarga y configura libs
 
 add_library(miniproyecto1 STATIC
-  src/bwt.cpp
+  src/utils.cpp
   src/OccMyWT.cpp
 )
 

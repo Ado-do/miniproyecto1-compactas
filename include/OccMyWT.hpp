@@ -65,6 +65,6 @@ private:
 
 public:
     OccMyWT() = default;
-    OccMyWT(std::vector<uint8_t> &seq);
+    OccMyWT(const std::vector<uint8_t> &seq);
     uint64_t occ(uint8_t v, uint64_t k);
 };

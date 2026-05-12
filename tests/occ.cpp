@@ -1,11 +1,10 @@
 #include "OccMyWT.hpp"
 #include "OccBruteForce.hpp"
 #include "OccSDSL.hpp"
-#include "bwt.hpp"
+#include "utils.hpp"
 
 #include <algorithm>
 #include <cassert>
-#include <fstream>
 #include <string>
 
 using namespace std;
@@ -13,19 +12,11 @@ using namespace std;
 int main(int argc, char *argv[]) {
     // Recibir archivo via CLI
     assert(argc == 2);
-    const string file_path = argv[1];
-    ifstream file(file_path, ios::binary | ios::ate);
+    vector<uint8_t> text = read_file_to_vector(argv[1]);
+    size_t n = text.size();
+    vector<uint8_t> bwt = get_bwt(text);
 
-    // Comprobar que se abrió
-    assert(file.is_open());
-    size_t n = file.tellg();
-    file.seekg(0, ios::beg);
-
-    vector<uint8_t> text(n), bwt(n);
-    file.read((char *)text.data(), n);
-    get_bwt(text, bwt);
-
-    unsigned char c = text[0];
+    unsigned char c = text[10];
     size_t cnt_text = count(text.begin(), text.end(), c);
     size_t cnt_bwt = count(bwt.begin(), bwt.end(), c);
     printf("* '%c': cnt_text = %zu, cnt_bwt = %zu\n", c, cnt_text, cnt_bwt);

@@ -5,9 +5,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "No build type selected, defaulting to Release")
+    # set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build." FORCE)
+endif()
+
 # Desactivar tests de libs
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
-set(BENCHLIB_BUILD_TESTING OFF CACHE BOOL "" FORCE) # Specific to bench-lib
+set(BENCHLIB_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
 include(FetchContent) # Usar FetchContent en vez de git submodules :P
 FetchContent_Declare(
@@ -41,5 +47,3 @@ option(BUILD_BENCHMARKS "Build benchmarks" ON)
 if(BUILD_BENCHMARKS)
   add_subdirectory(benchmarks)
 endif()
-
-target_compile_options(miniproyecto1 PRIVATE -O3 -Wall)

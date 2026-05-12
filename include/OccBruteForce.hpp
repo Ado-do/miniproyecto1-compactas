@@ -18,4 +18,8 @@ public:
             if ((*seq)[i] == v) cnt++;
         return cnt;
     }
+    double size_mb() const {
+        size_t bytes = sizeof(OccBruteForce) + (seq->capacity() * sizeof(uint8_t));
+        return bytes / (1024.0 * 1024.0);
+    }
 };

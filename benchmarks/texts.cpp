@@ -1,6 +1,6 @@
 #include "FMIndex.hpp"
-#include "OccBruteForce.hpp"
 #include "bench-lib/benchmark.hpp"
+#include "bench-lib/benchmark_manager.hpp"
 #include "utils.hpp"
 
 #include <exception>
@@ -17,9 +17,11 @@ int main(int argc, char *argv[]) {
         cerr << "Uso: " << argv[0] << " <text_file1> <text_file2> ...\n";
         return 1;
     }
-
     size_t n_texts = argc - 1;
     vector<string> text_names(n_texts);
+
+    cout << "* Experimentos sobre los textos: "; for (auto &name : text_names) cout << name << " ";
+
     vector<vector<uint8_t>> texts(n_texts);
     for (size_t i = 0; i < n_texts; i++) {
         text_names[i] = argv[i + 1];
@@ -33,56 +35,48 @@ int main(int argc, char *argv[]) {
     for (size_t i = 0; i < n_texts; i++) {
         vector<vector<uint8_t>> patterns = generate_patterns(texts[i], m, n_patterns);
 
-        FMIndex<OccBruteForce>  fm2(texts[i]);
         FMIndex<OccMyWT>        fm1(texts[i]);
+        // FMIndex<OccBruteForce>  fm2(texts[i]);
         FMIndex<OccBalancedWT>  fm3(texts[i]);
         FMIndex<OccHuffmanWT>   fm4(texts[i]);
 
-        BenchLib::Benchmark bench;
-        bench.add("OccMyWT", [&fm1, &patterns]() {
-            size_t cnt = 0;
-            for (auto &pattern : patterns)
-                cnt += fm1.count(pattern);
-            return cnt = 0;
-        }).set_input_size(n_texts).set_label("occ1");
+        BenchLib::BenchmarkManager manager;
+        for (size_t j = 0; j < n_patterns; j++) {
+            BenchLib::Benchmark bench;
 
-        bench.add("OccBruteForce", [&fm2, &patterns]() {
-            size_t cnt = 0;
-            for (auto &pattern : patterns)
-                cnt += fm2.count(pattern);
-            return cnt;
-        }).set_input_size(n_patterns).set_label("occ2");
+            bench.add("OccMyWT", [&fm1](vector<uint8_t> &pattern) {
+                return fm1.count(pattern);
+            }, patterns[i]).set_label("occ1").set_input_size(m).set_size_in_megabytes(fm1.size_mb());
 
-        bench.add("OccBalancedWT", [&fm3, &patterns]() {
-            size_t cnt = 0;
-            for (auto &pattern : patterns)
-                cnt += fm3.count(pattern);
-            return cnt;
-        }) .set_input_size(n_patterns).set_label("occ3");
+            // bench.add("OccBruteForce", [&fm2](vector<uint8_t> &pattern) {
+            //     return fm2.count(pattern);
+            // }, patterns[i]).set_label("occ2").set_input_size(m).set_size_in_megabytes(fm2.size_mb());
 
-        bench.add("OccHuffmanWT", [&fm4, &patterns]() {
-            size_t cnt = 0;
-            for (auto &pattern : patterns)
-                cnt += fm4.count(pattern);
-            return cnt;
-        })
-        .set_input_size(n_patterns).set_label("occ4");
-        bench.run();
+            bench.add("OccBalancedWT", [&fm3](vector<uint8_t> &pattern) {
+                return fm3.count(pattern);
+            }, patterns[i]).set_label("occ3").set_input_size(m).set_size_in_megabytes(fm3.size_mb());
 
-        size_t r1 = bench.get_result<size_t>(0);
-        size_t r2 = bench.get_result<size_t>(1);
-        size_t r3 = bench.get_result<size_t>(2);
-        size_t r4 = bench.get_result<size_t>(3);
-        assert(r1 == r2);
-        assert(r2 == r3);
-        assert(r3 == r4);
+            bench.add("OccHuffmanWT", [&fm4](vector<uint8_t> &pattern) {
+                return fm4.count(pattern);
+            }, patterns[i]).set_label("occ4").set_input_size(m).set_size_in_megabytes(fm4.size_mb());
 
-        if (i == 0) bench.write_csv(csv_name);
-        else        bench.append_csv(csv_name);
+            bench.run();
+            size_t r1 = bench.get_result<size_t>(0);
+            size_t r3 = bench.get_result<size_t>(1);
+            size_t r4 = bench.get_result<size_t>(2);
+
+            assert(r1 == r3);
+            assert(r3 == r4);
+
+            manager.add_results(bench.get_tasks());
+        }
+        manager.average_by_task();
+
+        if (i == 0) manager.write_csv(csv_name);
+        else        manager.append_csv(csv_name);
     }
 
-    cout << "Experimentos sobre los textos: "; for (auto &name : text_names) cout << name << " ";
-    cout << "\nResultados guardados en: results/" << csv_name << '\n';
+    cout << "\n* Resultados guardados en: results/" << csv_name << '\n';
 
     return 0;
 }

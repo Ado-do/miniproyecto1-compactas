@@ -29,6 +29,16 @@ int main(int argc, char *argv[]) {
     FMIndex<OccBalancedWT>  fm3(text);
     FMIndex<OccHuffmanWT>   fm4(text);
 
+    {
+        BenchLib::Benchmark bench;
+        vector<uint8_t> pattern = (generate_patterns(text, sizes[0], 1))[0];
+        bench.add(text_name + "+OccBruteForce", [&fm2](vector<uint8_t> &pattern) {
+            return fm2.count(pattern);
+        }, pattern).set_label(text_name.substr(0, 3) + "+occ2").set_input_size(sizes[0]).set_size_in_megabytes(fm2.size_mb());
+        bench.run();
+        bench.write_csv(csv_name);
+    }
+
     for (size_t i = 0; i < sizes.size(); i++) {
         size_t sz = sizes[i];
         vector<vector<uint8_t>> patterns = generate_patterns(text, sz, n_patterns);
@@ -39,21 +49,15 @@ int main(int argc, char *argv[]) {
 
             bench.add(text_name + "+OccMyWT", [&fm1](vector<uint8_t> &pattern) {
                 return fm1.count(pattern);
-            }, patterns[j]).set_label(text_name.substr(3) + "+occ1").set_input_size(sz).set_size_in_megabytes(fm1.size_mb());
-
-            if (sz == sizes[0] && j == 0) {
-                bench.add(text_name + "+OccBruteForce", [&fm2](vector<uint8_t> &pattern) {
-                    return fm2.count(pattern);
-                }, patterns[j]).set_label(text_name.substr(3) + "+occ2").set_input_size(sz).set_size_in_megabytes(fm2.size_mb());
-            }
+            }, patterns[j]).set_label(text_name.substr(0, 3) + "+occ1").set_input_size(sz).set_size_in_megabytes(fm1.size_mb());
 
             bench.add(text_name + "+OccBalancedWT", [&fm3](vector<uint8_t> &pattern) {
                 return fm3.count(pattern);
-            }, patterns[j]).set_label(text_name.substr(3) + "+occ3").set_input_size(sz).set_size_in_megabytes(fm3.size_mb());
+            }, patterns[j]).set_label(text_name.substr(0, 3) + "+occ3").set_input_size(sz).set_size_in_megabytes(fm3.size_mb());
 
             bench.add(text_name + "+OccHuffmanWT", [&fm4](vector<uint8_t> &pattern) {
                 return fm4.count(pattern);
-            }, patterns[j]).set_label(text_name.substr(3) + "+occ4").set_input_size(sz).set_size_in_megabytes(fm4.size_mb());
+            }, patterns[j]).set_label(text_name.substr(0, 3) + "+occ4").set_input_size(sz).set_size_in_megabytes(fm4.size_mb());
 
             bench.run();
 
@@ -67,9 +71,7 @@ int main(int argc, char *argv[]) {
             manager.add_results(bench.get_tasks());
         }
         manager.average_by_task();
-
-        if (i == 0) manager.write_csv(csv_name);
-        else        manager.append_csv(csv_name);
+        manager.append_csv(csv_name);
     }
 
     cout << "* Resultados guardados en : results/" << csv_name << ".csv" << endl;

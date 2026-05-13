@@ -11,9 +11,6 @@ private:
     std::vector<uint64_t> bitarray;
     std::vector<uint16_t> blocks;
     std::vector<uint32_t> super_blocks;
-    // std::vector<uint32_t> S1;
-    // std::vector<uint32_t> S2;
-    // uint8_t s;
     uint32_t size;
 
 public:
@@ -25,12 +22,8 @@ public:
     void add_rank();
     uint32_t rank1(uint32_t index);
     uint32_t rank0(uint32_t index);
-    // void add_select1_1();
-    // uint32_t select1_1(uint32_t j);
-    // void add_select1_2(uint8_t _s = 7);
-    // uint32_t select1_2(uint32_t j);
-    size_t dynamic_size_in_bytes() const {
-        size_t bytes = 0;
+    double dynamic_size_in_bytes() const {
+        double bytes = 0;
         bytes += bitarray.capacity() * sizeof(uint64_t);
         bytes += blocks.capacity() * sizeof(uint16_t);
         bytes += super_blocks.capacity() * sizeof(uint32_t);
@@ -57,34 +50,43 @@ private:
     uint32_t height;
 
     Node *build(std::vector<uint32_t> const &sequence, uint32_t l, uint32_t r, int h);
-    size_t node_size_bytes(Node *n) const {
+    void destroy_tree(Node *n) {
+        if (n == nullptr) return;
+        destroy_tree(n->childs[0]);
+        destroy_tree(n->childs[1]);
+        delete n;
+    }
+    double node_size_bytes(Node *n) const {
         if (n == nullptr) return 0;
-        size_t bytes = sizeof(Node) + n->representation.dynamic_size_in_bytes();
+        double bytes = sizeof(Node) + n->representation.dynamic_size_in_bytes();
         bytes += node_size_bytes(n->childs[0]);
         bytes += node_size_bytes(n->childs[1]);
         return bytes;
     }
+
 public:
-    WaveletTree() = default;
-    WaveletTree(std::vector<uint32_t> &sequence);
+    WaveletTree() = delete;
+    WaveletTree(std::vector<uint32_t> sequence);
+    ~WaveletTree() { destroy_tree(root); }
 
     uint32_t access(uint32_t index);
     uint32_t rank(uint32_t symbol, uint32_t index);
-    size_t size_bytes() const {
-        return node_size_bytes(root);
-    }
+    double size_bytes() const { return node_size_bytes(root); }
 };
 
 class OccMyWT {
 private:
     WaveletTree wt;
 
+    std::vector<uint32_t> cast_vector(std::vector<uint8_t> og) {
+        return std::vector<uint32_t>(og.begin(), og.end());
+    }
 public:
-    OccMyWT() = default;
-    OccMyWT(const std::vector<uint8_t> &seq);
-    uint64_t occ(uint8_t v, uint64_t k);
+    OccMyWT() = delete;
+    OccMyWT(const std::vector<uint8_t> &seq) : wt(cast_vector(seq)) {}
+    uint64_t occ(uint8_t v, uint64_t k) { return wt.rank(v, k); }
     double size_mb() const {
-        size_t bytes = sizeof(OccMyWT) + wt.size_bytes();
+        double bytes = sizeof(OccMyWT) + wt.size_bytes();
         return bytes / (1024.0 * 1024.0);
     }
 };

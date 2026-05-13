@@ -10,7 +10,7 @@ using namespace std;
 
 const vector<size_t> sizes{32, 64, 128, 256, 512};
 const size_t n_patterns = 100;
-const string csv_name = "patterns_res";
+string csv_name = "patterns_results";
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -18,7 +18,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     string text_path = argv[1];
-    cout << "* Experimentos sobre el texto " << quoted(text_path) << " utilizando patrones de diferente largo!\n";
+    string text_name = sdsl::util::basename(text_path);
+    csv_name = text_name + "_" + csv_name;
+    cout << "* Experimentos sobre el texto " << quoted(text_name) << " utilizando patrones de diferente largo!\n";
 
     vector<uint8_t> text = read_file_to_vector(text_path);
 
@@ -35,23 +37,23 @@ int main(int argc, char *argv[]) {
         for (size_t j = 0; j < n_patterns; j++) {
             BenchLib::Benchmark bench;
 
-            bench.add("OccMyWT", [&fm1](vector<uint8_t> &pattern) {
+            bench.add(text_name + "+OccMyWT", [&fm1](vector<uint8_t> &pattern) {
                 return fm1.count(pattern);
-            }, patterns[i]).set_label("occ1").set_input_size(sz).set_size_in_megabytes(fm1.size_mb());
+            }, patterns[j]).set_label(text_name.substr(3) + "+occ1").set_input_size(sz).set_size_in_megabytes(fm1.size_mb());
 
-            if (sz == sizes[0]) {
-                bench.add("OccBruteForce", [&fm2](vector<uint8_t> &pattern) {
+            if (sz == sizes[0] && j == 0) {
+                bench.add(text_name + "+OccBruteForce", [&fm2](vector<uint8_t> &pattern) {
                     return fm2.count(pattern);
-                }, patterns[i]).set_label("occ2").set_input_size(sz).set_size_in_megabytes(fm2.size_mb());
+                }, patterns[j]).set_label(text_name.substr(3) + "+occ2").set_input_size(sz).set_size_in_megabytes(fm2.size_mb());
             }
 
-            bench.add("OccBalancedWT", [&fm3](vector<uint8_t> &pattern) {
+            bench.add(text_name + "+OccBalancedWT", [&fm3](vector<uint8_t> &pattern) {
                 return fm3.count(pattern);
-            }, patterns[i]).set_label("occ3").set_input_size(sz).set_size_in_megabytes(fm3.size_mb());
+            }, patterns[j]).set_label(text_name.substr(3) + "+occ3").set_input_size(sz).set_size_in_megabytes(fm3.size_mb());
 
-            bench.add("OccHuffmanWT", [&fm4](vector<uint8_t> &pattern) {
+            bench.add(text_name + "+OccHuffmanWT", [&fm4](vector<uint8_t> &pattern) {
                 return fm4.count(pattern);
-            }, patterns[i]).set_label("occ4").set_input_size(sz).set_size_in_megabytes(fm4.size_mb());
+            }, patterns[j]).set_label(text_name.substr(3) + "+occ4").set_input_size(sz).set_size_in_megabytes(fm4.size_mb());
 
             bench.run();
 
@@ -70,7 +72,7 @@ int main(int argc, char *argv[]) {
         else        manager.append_csv(csv_name);
     }
 
-    cout << "* Resultados guardados en : results/" << csv_name << '\n';
+    cout << "* Resultados guardados en : results/" << csv_name << ".csv" << endl;
 
     return 0;
 }

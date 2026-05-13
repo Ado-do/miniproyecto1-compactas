@@ -1,5 +1,2 @@
 #!/bin/bash
-
-cd build
-make
-cd ..
+make -C build/ -j4

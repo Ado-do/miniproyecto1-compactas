@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 declare -A texts=(
     ["english.50MB"]="https://pizzachili.dcc.uchile.cl/texts/nlang/english.50MB.gz"

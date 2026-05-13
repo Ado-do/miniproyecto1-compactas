@@ -15,20 +15,17 @@ private:
     std::vector<size_t> C;
     OccStruct occ_struct;
 
-    void calculate_C(std::vector<uint8_t> bwt) {
+    void calculate_C(const std::vector<uint8_t> &text) {
         std::vector<size_t> freq(SIGMA + 1, 0);
-        for (uint8_t c : bwt)
+        for (uint8_t c : text)
             freq[c]++;
-
         for (size_t i = 0; i < SIGMA; i++)
             C[i + 1] = C[i] + freq[i];
     }
 
 public:
-    FMIndex(const std::vector<uint8_t> &text) : C(SIGMA + 1, 0) {
-        std::vector<uint8_t> bwt{get_bwt(text)};
-        calculate_C(bwt);
-        occ_struct = OccStruct(bwt);
+    FMIndex(const std::vector<uint8_t> &text) : C(SIGMA + 1, 0), occ_struct(get_bwt(text)) {
+        calculate_C(text);
     }
     size_t count(std::vector<uint8_t> &pattern) {
         if (pattern.empty()) return 0;
@@ -46,7 +43,7 @@ public:
         return (ep - sp + 1);
     }
     double size_mb() const {
-        size_t bytes = (sizeof(FMIndex) + C.capacity() * sizeof(size_t)) / (1024.0 * 1024.0);
-        return occ_struct.size_mb();
+        size_t fm_mb = (sizeof(FMIndex) + C.capacity() * sizeof(size_t)) / (1024.0 * 1024.0);
+        return fm_mb + occ_struct.size_mb();
     }
 };

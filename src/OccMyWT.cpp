@@ -88,7 +88,7 @@ uint32_t BitVector::rank0(uint32_t index) { return index - rank1(index); }
 
 // Definiciones de WaveletTree
 
-WaveletTree::WaveletTree(vector<uint32_t> &sequence) {
+WaveletTree::WaveletTree(vector<uint32_t> sequence) {
     sigma = 0;
     for (auto const &e : sequence) {
         sigma = max(e, sigma);
@@ -153,12 +153,3 @@ uint32_t WaveletTree::rank(uint32_t symbol, uint32_t index) {
     }
     return index;
 }
-
-// Definiciones OccMyWT
-
-OccMyWT::OccMyWT(const vector<uint8_t> &seq) {
-    vector<uint32_t> casted_bwt(seq.begin(), seq.end());
-    wt = WaveletTree(casted_bwt);
-}
-
-uint64_t OccMyWT::occ(uint8_t v, uint64_t k) { return wt.rank(v, k); }

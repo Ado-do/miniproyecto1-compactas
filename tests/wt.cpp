@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     WaveletTree wt(buf);
     for (size_t i = 0; i < n; i++) {
         // Comprobar correctitud de construcción del WaveletTree
-        assert(tmp_buf[i] == wt.access(i));
+        assert(buf[i] == wt.access(i));
     }
 
     size_t real_cnt = count(text.begin(), text.end(), 'T');
